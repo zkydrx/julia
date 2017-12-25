@@ -686,3 +686,14 @@ end
     @test Random.gentype(Random.UInt52(UInt128)) == UInt128
     @test Random.gentype(Random.UInt104()) == UInt128
 end
+
+@testset "rand(::Tuple)" begin
+    for x in (0x1, 1)
+        @test rand((x,)) == 0x1
+        @test rand((x, 2)) ∈ 1:2
+        @test rand((x, 2, 3)) ∈ 1:3
+        @test rand((x, 2, 3, 4)) ∈ 1:4
+        @test rand((x, 2, 3, 4, 5)) ∈ 1:5
+        @test rand((x, 2, 3, 4, 6)) ∈ 1:6
+    end
+end

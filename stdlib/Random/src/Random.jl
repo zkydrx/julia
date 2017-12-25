@@ -219,6 +219,8 @@ rand(rng::AbstractRNG, ::UniformT{T}) where {T} = rand(rng, T)
 #### scalars
 
 rand(rng::AbstractRNG, X)                                      = rand(rng, Sampler(rng, X, Val(1)))
+# this is needed to disambiguate
+rand(rng::AbstractRNG, X::Dims)                                = rand(rng, Sampler(rng, X, Val(1)))
 rand(rng::AbstractRNG=GLOBAL_RNG, ::Type{X}=Float64) where {X} = rand(rng, Sampler(rng, X, Val(1)))
 
 rand(X)                   = rand(GLOBAL_RNG, X)
@@ -250,9 +252,6 @@ rand(                X, d::Integer, dims::Integer...) = rand(X, Dims((d, dims...
 # note: the above methods would trigger an ambiguity warning if d was not separated out:
 # rand(r, ()) would match both this method and rand(r, dims::Dims)
 # moreover, a call like rand(r, NotImplementedType()) would be an infinite loop
-
-# this is needed to disambiguate
-rand(r::AbstractRNG, dims::Dims) = error("rand(rng, dims) is discontinued; try rand(rng, Float64, dims)")
 
 rand(r::AbstractRNG, ::Type{X}, dims::Dims) where {X} = rand!(r, Array{X}(undef, dims), X)
 rand(                ::Type{X}, dims::Dims) where {X} = rand(GLOBAL_RNG, X, dims)
