@@ -76,6 +76,34 @@ julia> range(1, step=5, stop=100)
 range(start; length::Union{Integer,Nothing}=nothing, stop=nothing, step=nothing) =
     _range(start, step, stop, length)
 
+"""
+    range(start, stop; length, step=1)
+
+Construct a range from start and stop values,
+optionally with a given step (defaults to 1, a [`UnitRange`](@ref)).
+If `length` and `step` are both specified, they must agree.
+
+If `length` is provided and `step` is not, the step size will be computed
+automatically such that there are `length` linearly spaced elements in the range (a [`LinRange`](@ref)).
+
+If `step` is provided and `length` is not, the overall range length will be computed
+automatically such that the elements are `step` spaced (a [`StepRange`](@ref)).
+
+# Examples
+```jldoctest
+julia> range(1, 100)
+1:100
+
+julia> range(1, 10, length=101)
+1.0:0.09:10.0
+
+julia> range(1, 100, step=5)
+1:5:96
+```
+"""
+range(start, stop; length::Union{Integer,Nothing}=nothing, step=nothing) =
+    _range(start, step, stop, length)
+
 # Range from start to stop: range(a, [step=s,] stop=b), no length
 _range(start, step,      stop, ::Nothing) = (:)(start, step, stop)
 _range(start, ::Nothing, stop, ::Nothing) = (:)(start, stop)

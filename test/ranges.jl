@@ -1371,3 +1371,18 @@ end # module NonStandardIntegerRangeTest
         end
     end
 end
+
+@testset "range with start and stop" begin
+    for starts in [-1, 0, 1, 10]
+        for stops in [-2, 0, 2, 100]
+            for lengths in [2, 10, 100]
+                if stops >= starts
+                    @test range(starts, stops, length=lengths) == range(starts, stop=stops, length=lengths)
+                end
+            end
+            for steps in [0.01, 1, 2]
+                @test range(starts, stops, step=steps) == range(starts, stop=stops, step=steps)
+            end
+        end
+    end
+end
