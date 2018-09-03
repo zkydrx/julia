@@ -58,7 +58,7 @@ JL_DLLEXPORT void jl_init(void)
 {
     char *libbindir = NULL;
 #ifdef _OS_WINDOWS_
-    void *hdl = (void*)jl_load_dynamic_library_e(NULL, JL_RTLD_DEFAULT);
+    void *hdl = (void*)jl_load_dynamic_library(NULL, JL_RTLD_DEFAULT, 0);
     if (hdl) {
         char *to_free = (char*)jl_pathname_for_handle(hdl);
         if (to_free) {
@@ -386,6 +386,7 @@ JL_DLLEXPORT jl_value_t *(jl_typeof)(jl_value_t *v)
     return jl_typeof(v);
 }
 
+#ifndef __clang_analyzer__
 JL_DLLEXPORT int8_t (jl_gc_unsafe_enter)(void)
 {
     jl_ptls_t ptls = jl_get_ptls_states();
@@ -409,6 +410,7 @@ JL_DLLEXPORT void (jl_gc_safe_leave)(int8_t state)
     jl_ptls_t ptls = jl_get_ptls_states();
     jl_gc_safe_leave(ptls, state);
 }
+#endif
 
 JL_DLLEXPORT void (jl_gc_safepoint)(void)
 {

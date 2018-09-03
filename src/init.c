@@ -278,6 +278,7 @@ JL_DLLEXPORT void jl_atexit_hook(int exitcode)
             }
             JL_CATCH {
                 //error handling -- continue cleanup, as much as possible
+                assert(item);
                 uv_unref(item->h);
                 jl_printf(JL_STDERR, "error during exit cleanup: close: ");
                 jl_static_show(JL_STDERR, ptls->exception_in_transit);
@@ -592,6 +593,8 @@ static void jl_resolve_sysimg_location(JL_IMAGE_SEARCH rel)
         jl_options.outputbc = abspath(jl_options.outputbc, 0);
     if (jl_options.machine_file)
         jl_options.machine_file = abspath(jl_options.machine_file, 0);
+    if (jl_options.project && strncmp(jl_options.project, "@.", strlen(jl_options.project)) != 0)
+        jl_options.project = abspath(jl_options.project, 0);
 
     const char **cmdp = jl_options.cmds;
     if (cmdp) {
@@ -640,7 +643,7 @@ void _julia_init(JL_IMAGE_SEARCH rel)
     }
     jl_arr_xtralloc_limit = total_mem / 100;  // Extra allocation limited to 1% of total RAM
     jl_find_stack_bottom();
-    jl_dl_handle = jl_load_dynamic_library(NULL, JL_RTLD_DEFAULT);
+    jl_dl_handle = jl_load_dynamic_library(NULL, JL_RTLD_DEFAULT, 1);
 #ifdef _OS_WINDOWS_
     jl_ntdll_handle = jl_dlopen("ntdll.dll", 0); // bypass julia's pathchecking for system dlls
     jl_kernel32_handle = jl_dlopen("kernel32.dll", 0);
@@ -658,7 +661,7 @@ void _julia_init(JL_IMAGE_SEARCH rel)
     needsSymRefreshModuleList = 0;
     HMODULE jl_dbghelp = (HMODULE) jl_dlopen("dbghelp.dll", 0);
     if (jl_dbghelp)
-        hSymRefreshModuleList = (BOOL (WINAPI*)(HANDLE)) jl_dlsym(jl_dbghelp, "SymRefreshModuleList");
+        jl_dlsym(jl_dbghelp, "SymRefreshModuleList", (void **)&hSymRefreshModuleList, 1);
 #else
     jl_exe_handle = jl_dlopen(NULL, JL_RTLD_NOW);
 #ifdef RTLD_DEFAULT
